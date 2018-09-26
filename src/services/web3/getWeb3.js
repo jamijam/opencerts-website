@@ -119,6 +119,7 @@ export function setNewWeb3(t, config) {
   });
 }
 
+
 export function getCurrentWeb3(t, config) {
   if (web3Instance) {
     return new Promise(resolve => {
@@ -127,3 +128,5 @@ export function getCurrentWeb3(t, config) {
   }
   return setNewWeb3(t, config);
 }
+
+export default getCurrentWeb3;

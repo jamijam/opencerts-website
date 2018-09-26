@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { some } from "lodash";
 import { put, all, call } from "redux-saga/effects";
 import { certificateData, verifySignature } from "@govtechsg/open-certificate";
 import Router from "next/router";
@@ -6,18 +7,30 @@ import { types } from "../reducers/certificate";
 import CertificateStoreDefinition from "../services/contracts/CertificateStore.json";
 import fetchIssuers from "../services/issuers";
 import { combinedHash } from "../utils";
+import { setWeb3, ensResolveAddress } from "../services/ens";
+import { isEthereumAddress } from "../utils";
 
 import { getSelectedWeb3 } from "./application";
 
 export function* loadCertificateContracts({ payload }) {
   try {
     const data = certificateData(payload);
-    const contractStoreAddresses = _.get(data, "issuers", []).map(
+    console.log(data);
+    const unresolvedContractStoreAddresses = _.get(data, "issuers", []).map(
       issuer => issuer.certificateStore
     );
+    // resolve ens here
+    console.log("here");
+    const web3 = yield getSelectedWeb3();
+    const w = yield call(setWeb3, web3);
+    const contractStoreAddresses = yield all(
+      unresolvedContractStoreAddresses.map(unresolvedAddress =>
+        call(ensResolveAddress, unresolvedAddress)
+      )
+    );
+    console.log("contract store addresses", contractStoreAddresses);
 
     const { abi } = CertificateStoreDefinition;
-    const web3 = yield getSelectedWeb3();
 
     const contracts = contractStoreAddresses.map(
       address => new web3.eth.Contract(abi, address)
@@ -121,6 +134,13 @@ export function* verifyCertificateNotRevoked({
   }
 }
 
+function isApprovedENSDomain(issuerAddress) {
+  const approvedENSDomains = [/(opencerts.eth)$/, /(opencerts2.test)$/];
+  return some(
+    approvedENSDomains.map(domainMask => domainMask.test(issuerAddress))
+  );
+}
+
 export function* verifyCertificateIssuer({ certificate }) {
   try {
     const registeredIssuers = yield fetchIssuers();
@@ -130,9 +150,16 @@ export function* verifyCertificateIssuer({ certificate }) {
       issuer => issuer.certificateStore
     );
 
+    console.log(
+      "verifying contract store addresses: " + contractStoreAddresses
+    );
+
     const issuerIdentities = contractStoreAddresses.map(store => {
       const identity = registeredIssuers[store.toUpperCase()];
-      if (!identity)
+
+      if (isApprovedENSDomain(store)) {
+        return "TODO: fetch text from ENS";
+      } else if (!identity)
         throw new Error(`Issuer identity cannot be verified: ${store}`);
       return identity;
     });
