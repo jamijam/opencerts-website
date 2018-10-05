@@ -20,6 +20,10 @@ class MainPageContainer extends Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      detailedVerifyVisible: false
+    };
+    this.toggleDetailedView = this.toggleDetailedView.bind(this);
     this.handleCertificateChange = this.handleCertificateChange.bind(this);
   }
 
@@ -28,6 +32,12 @@ class MainPageContainer extends Component {
     if (!document) {
       Router.replace("/");
     }
+  }
+
+  toggleDetailedView() {
+    this.setState({
+      detailedVerifyVisible: !this.state.detailedVerifyVisible
+    });
   }
 
   handleCertificateChange(certificate) {
@@ -46,6 +56,8 @@ class MainPageContainer extends Component {
         notRevokedStatus={this.props.notRevokedStatus}
         issuerIdentityStatus={this.props.issuerIdentityStatus}
         handleCertificateChange={this.handleCertificateChange}
+        toggleDetailedView={this.toggleDetailedView}
+        detailedVerifyVisible={this.state.detailedVerifyVisible}
       />
     );
   }

@@ -132,8 +132,7 @@ export function* verifyCertificateIssuer({ certificate }) {
 
     const issuerIdentities = contractStoreAddresses.map(store => {
       const identity = registeredIssuers[store.toUpperCase()];
-      if (!identity)
-        throw new Error(`Issuer identity cannot be verified: ${store}`);
+      if (!identity) throw new Error(`${store}`);
       return identity;
     });
 
