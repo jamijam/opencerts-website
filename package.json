@@ -23,7 +23,7 @@
     "lodash": "^4.17.11",
     "next": "^7.0.1",
     "next-redux-wrapper": "^2.0.0",
-    "node-sass": "^4.9.3",
+    "node-sass": "^9.0.0",
     "prop-types": "^15.6.1",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
@@ -35,7 +35,7 @@
     "truffle-contract": "^3.0.4",
     "web3": "^1.0.0-beta.36",
     "//": "web3-provider-engine using my own fork until websocket fix is merged",
-    "web3-provider-engine": "rjchow/provider-engine"
+    "web3-provider-engine": "16.0.8"
   },
   "license": "ISC",
   "devDependencies": {
